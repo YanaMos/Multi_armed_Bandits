@@ -2,7 +2,7 @@ import UCB
 import random
 
 
-class PredictArm():
+class PredictArm:
     """
 
     mab:predict_arm
@@ -12,7 +12,10 @@ class PredictArm():
     horizon = 100
 
     def handle(self):
-        data = {}
+        data = {111: {'sends': 1000, 'open_rate': 0.11},
+                112: {'sends': 1000, 'open_rate': 0.13},
+                113: {'sends': 1000, 'open_rate': 0.16}}
+
         algorithm = UCB.UCB([], [])
         arms = {}
         for subject, subjectData in data.items():
@@ -28,8 +31,10 @@ class PredictArm():
     def MabAlgorithm(self, algorithm, arms_dict):
         values = list(map(lambda x: x['value'], arms_dict.values()))
         counts = list(map(lambda x: int(x['count'] / 10), arms_dict.values()))
+        arms_id = list(arms_dict.keys())
         chosen_arms = [0.0 for i in range(self.num_sims * self.horizon)]
         rewards = [0.0 for i in range(self.num_sims * self.horizon)]
+        cumulative_rewards = [0.0 for i in range(self.num_sims * self.horizon)]
         sim_nums = [0.0 for i in range(self.num_sims * self.horizon)]
         times = [0.0 for i in range(self.num_sims * self.horizon)]
         armsResult = {}
@@ -49,6 +54,16 @@ class PredictArm():
 
                 reward = self.BernoulliArm(values[chosen_arms[index]])
                 rewards[index] = reward
+
+                if arms_id[chosen_arm] not in armsResult:
+                    armsResult[arms_id[chosen_arm]] = 0
+                else:
+                    armsResult[arms_id[chosen_arm]] += 1
+
+                if t == 1:
+                    cumulative_rewards[index] = reward
+                else:
+                    cumulative_rewards[index] = cumulative_rewards[index - 1] + reward
 
                 algorithm.update(chosen_arm, reward)
 
