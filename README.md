@@ -9,3 +9,5 @@ key - subject_id
 sends - count has sent emails
 open_rate - conversion opened/sends
 
+use bandit to optimize open_raye between subject_id
+Bernoulli probability for each arm equal to open_dare
